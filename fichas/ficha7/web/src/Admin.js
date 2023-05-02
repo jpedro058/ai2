@@ -1,6 +1,52 @@
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 function Admin() {
+  const [generos, setGeneros] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:3000/genero/list")
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error(`Request failed: ${response.status}`);
+        }
+      })
+      .then((data) => {
+        console.log(data);
+        setGeneros(data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
+
+  const [titulo, setTitulo] = useState("");
+  const [descricao, setDescricao] = useState("");
+  const [foto, setFoto] = useState("");
+  const [genero, setGenero] = useState("");
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    fetch("http://localhost:3000/filme/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        titulo,
+        descricao,
+        foto,
+        genero,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => console.log(data))
+      .catch((error) => console.error(error));
+  };
+
   return (
     <div
       style={{
@@ -85,79 +131,91 @@ function Admin() {
               </h1>
             </div>
           </div>
-          <div className="row">
-            <div className="col-12">
-              <form action="" method="post">
-                <div className="mb-3">
-                  <label
-                    htmlFor="title"
-                    className="form-label"
-                    style={{ color: "white" }}
-                  >
-                    Title
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="title"
-                    name="title"
-                    placeholder="Title"
-                  />
-                </div>
-                <div className="mb-3">
-                  <label
-                    htmlFor="director"
-                    className="form-label"
-                    style={{ color: "white" }}
-                  >
-                    Discricao
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="director"
-                    name="director"
-                    placeholder="Director"
-                  />
-                </div>
-                <div className="mb-3">
-                  <label
-                    htmlFor="director"
-                    className="form-label"
-                    style={{ color: "white" }}
-                  >
-                    Foto
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="director"
-                    name="director"
-                    placeholder="URL da foto"
-                  />
-                </div>
 
-                <div className="mb-3">
-                  <label
-                    htmlFor="genre"
-                    className="form-label"
-                    style={{ color: "white" }}
-                  >
-                    Genre
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="genre"
-                    name="genre"
-                    placeholder="Genre"
-                  />
-                </div>
-                <button className="btn btn-primary" style={{ color: "white" }}>
-                  Create
-                </button>
-              </form>
-            </div>
+          <div className="col-12">
+            <form action="/filme/create" method="POST" onSubmit={handleSubmit}>
+              <div className="mb-3">
+                <label className="form-label" style={{ color: "white" }}>
+                  Title
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="titulo"
+                  name="titulo"
+                  placeholder="Title"
+                  value={titulo}
+                  onChange={(event) => setTitulo(event.target.value)}
+                />
+              </div>
+              <div className="mb-3">
+                <label
+                  htmlFor="director"
+                  className="form-label"
+                  style={{ color: "white" }}
+                >
+                  Descricao
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="descricao"
+                  name="descricao"
+                  placeholder="descrição"
+                  value={descricao}
+                  onChange={(event) => setDescricao(event.target.value)}
+                />
+              </div>
+              <div className="mb-3">
+                <label
+                  htmlFor="director"
+                  className="form-label"
+                  style={{ color: "white" }}
+                >
+                  Foto
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="foto"
+                  name="foto"
+                  placeholder="URL da foto"
+                  value={foto}
+                  onChange={(event) => setFoto(event.target.value)}
+                />
+              </div>
+
+              <div className="mb-3">
+                <label
+                  htmlFor="genre"
+                  className="form-label"
+                  style={{ color: "white" }}
+                >
+                  Genre
+                </label>
+                <select
+                  className="form-select"
+                  id="genero"
+                  name="genero"
+                  value={genero}
+                  onChange={(event) => setGenero(event.target.value)}
+                >
+                  <option selected>Choose...</option>
+                  {generos.map((genero) => (
+                    <option key={genero.id} value={genero.id}>
+                      {genero.descricao}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                style={{ color: "white" }}
+              >
+                Create
+              </button>
+            </form>
           </div>
 
           <hr style={{ color: "white" }} />
@@ -192,78 +250,6 @@ function Admin() {
                     data-bs-target="#editMovie"
                   >
                     Edit
-                  </button>
-                  <button
-                    style={{
-                      backgroundColor: "transparent",
-                      border: "1px solid red",
-                      color: "white",
-                      borderRadius: "5px",
-                    }}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <th scope="row">2</th>
-                <td>Avatar</td>
-                <td>2000</td>
-                <td>Action</td>
-                <td>Arlindo Calça Fina</td>
-                <td>
-                  <button
-                    style={{
-                      backgroundColor: "transparent",
-                      border: "2px solid green",
-                      color: "white",
-                      borderRadius: "5px",
-                    }}
-                    data-bs-toggle="modal"
-                    data-bs-target="#editMovie"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    style={{
-                      backgroundColor: "transparent",
-                      border: "1px solid red",
-                      color: "white",
-                      borderRadius: "5px",
-                    }}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <th scope="row">3</th>
-                <td>Spider-Man</td>
-                <td>2000</td>
-                <td>Action</td>
-                <td>Arlindo Calça Fina</td>
-                <td>
-                  <button
-                    style={{
-                      backgroundColor: "transparent",
-                      border: "2px solid green",
-                      color: "white",
-                      borderRadius: "5px",
-                    }}
-                    data-bs-toggle="modal"
-                    data-bs-target="#editMovie"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    style={{
-                      backgroundColor: "transparent",
-                      border: "1px solid red",
-                      color: "white",
-                      borderRadius: "5px",
-                    }}
-                  >
-                    Delete
                   </button>
                 </td>
               </tr>
@@ -328,6 +314,10 @@ function Admin() {
       </div>
     </div>
   );
+}
+
+function genero(descricao) {
+  return <option value="">{descricao}</option>;
 }
 
 export default Admin;

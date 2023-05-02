@@ -1,7 +1,10 @@
 const sequelize = require("./conections.js");
 const express = require("express");
+const cors = require("cors");
 
 const app = express();
+
+app.use(cors());
 
 sequelize.authenticate().then(() => {
   console.log("Conexão com o banco de dados realizada com sucesso!");
