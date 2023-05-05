@@ -1,4 +1,5 @@
 const Filme = require("../model/filme");
+const Genero = require("../model/genero");
 
 module.exports = {
   filme_create(req, res) {
@@ -12,7 +13,13 @@ module.exports = {
   },
 
   async filme_list(req, res) {
-    const filme = await Filme.findAll();
+    const filme = await Filme.findAll({
+      include: [
+        {
+          model: Genero,
+        },
+      ],
+    });
 
     return res.status(200).send(filme);
   },

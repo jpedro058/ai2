@@ -32,7 +32,10 @@ const Filme = Sequelize.define(
   }
 );
 
-Filme.hasOne(genero, { foreignKey: "id", sourceKey: "genero" });
+/* Filme.hasOne(genero, { foreignKey: "id", sourceKey: "genero" });
+genero.hasMany(Filme, { foreignKey: "genero", sourceKey: "id" }); */
+
+Filme.belongsTo(genero, { foreignKey: "genero", targetKey: "id" });
 genero.hasMany(Filme, { foreignKey: "genero", sourceKey: "id" });
 
 module.exports = Filme;

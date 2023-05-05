@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 function Admin() {
+  /* set generos */
   const [generos, setGeneros] = useState([]);
 
   useEffect(() => {
@@ -14,13 +15,14 @@ function Admin() {
         }
       })
       .then((data) => {
-        console.log(data);
         setGeneros(data);
       })
       .catch((error) => {
         console.error(error);
       });
   }, []);
+
+  /* create movie */
 
   const [titulo, setTitulo] = useState("");
   const [descricao, setDescricao] = useState("");
@@ -47,6 +49,70 @@ function Admin() {
       .catch((error) => console.error(error));
   };
 
+  /* list movie */
+
+  const [filmes, setFilmes] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:3000/filme/list")
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error(`Request failed: ${response.status}`);
+        }
+      })
+      .then((data) => {
+        setFilmes(data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
+
+  const [editingMovie, setEditingMovie] = useState(null);
+
+  const [tituloEdit, setTituloEdit] = useState("");
+  const [descricaoEdit, setDescricaoEdit] = useState("");
+  const [fotoEdit, setFotoEdit] = useState("");
+  const [generoEdit, setGeneroEdit] = useState("");
+  const [movieIdEdit, setMovieIdEdit] = useState("");
+
+  // Function to handle the edit button click
+  const handleEditClick = (filme) => {
+    setEditingMovie(filme);
+
+    setMovieIdEdit(filme.id);
+    setTituloEdit(filme.titulo);
+    setDescricaoEdit(filme.descricao);
+    setFotoEdit(filme.foto);
+    setGeneroEdit(filme.genero);
+  };
+
+  // Function to handle the form submit event
+
+  const handleEditSubmit = (event) => {
+    event.preventDefault();
+
+    fetch(`http://localhost:3000/filme/update/${movieIdEdit}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        titulo: tituloEdit,
+        descricao: descricaoEdit,
+        foto: fotoEdit,
+        genero: generoEdit,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => console.log(data))
+      .catch((error) => console.error(error));
+
+    setEditingMovie(null);
+  };
+
   return (
     <div
       style={{
@@ -60,12 +126,8 @@ function Admin() {
         className="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark"
         style={{ display: "flex", flex: "20%", minWidth: "20%" }}
       >
-        <a
-          href="/"
-          className="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none"
-        >
-          <span className="fs-4">Dashboard</span>
-        </a>
+        <span className="fs-4">Dashboard</span>
+
         <hr />
         <ul className="nav nav-pills flex-column mb-auto">
           <li className="nav-item">
@@ -224,35 +286,32 @@ function Admin() {
             <thead>
               <tr>
                 <th scope="col">#</th>
-                <th scope="col">Title</th>
-                <th scope="col">Year</th>
-                <th scope="col">Genre</th>
-                <th scope="col">Director</th>
-                <th scope="col">Ações</th>
+                <th scope="col">Titulo</th>
+                <th scope="col">Descricao</th>
+                <th scope="col">Genero</th>
+                <th scope="col">Edit</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <th scope="row">1</th>
-                <td>Smile</td>
-                <td>2010</td>
-                <td>Horro</td>
-                <td>Arlindo Calça Fina</td>
-                <td>
-                  <button
-                    style={{
-                      backgroundColor: "transparent",
-                      border: "2px solid green",
-                      color: "white",
-                      borderRadius: "5px",
-                    }}
-                    data-bs-toggle="modal"
-                    data-bs-target="#editMovie"
-                  >
-                    Edit
-                  </button>
-                </td>
-              </tr>
+              {filmes.map((filme) => (
+                <tr key={filme.id}>
+                  <th scope="row">{filme.id}</th>
+                  <td>{filme.titulo}</td>
+                  <td>{filme.descricao}</td>
+                  <td>{filme.Genero.descricao}</td>
+                  <td>
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      data-bs-toggle="modal"
+                      data-bs-target="#editMovie"
+                      onClick={() => handleEditClick(filme)}
+                    >
+                      Edit
+                    </button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
 
@@ -263,7 +322,7 @@ function Admin() {
             aria-labelledby="exampleModalLabel"
             aria-hidden="true"
           >
-            <form action="admin.html">
+            <form onSubmit={handleEditSubmit}>
               <div className="modal-dialog">
                 <div className="modal-content">
                   <div className="modal-header">
@@ -284,25 +343,62 @@ function Admin() {
                         className="form-control"
                         aria-describedby="emailHelp"
                         placeholder="Title"
+                        defaultValue={editingMovie ? editingMovie.titulo : ""}
+                        value={tituloEdit}
+                        onChange={(event) => setTituloEdit(event.target.value)}
+                        name="titulo"
                       />
                     </div>
                     <div className="mb-3">
                       <input
                         type="text"
                         className="form-control"
-                        placeholder="Year"
+                        placeholder="Description"
+                        name="descricao"
+                        value={descricaoEdit}
+                        onChange={(event) =>
+                          setDescricaoEdit(event.target.value)
+                        }
                       />
                     </div>
                     <div className="mb-3">
                       <input
                         type="text"
                         className="form-control"
-                        placeholder="Genre"
+                        placeholder="URL da foto"
+                        name="foto"
+                        defaultValue={editingMovie ? editingMovie.foto : ""}
+                        value={fotoEdit}
+                        onChange={(event) => setFotoEdit(event.target.value)}
                       />
+                    </div>
+                    <div className="mb-3">
+                      <select
+                        className="form-select"
+                        id="genero"
+                        name="genero"
+                        defaultValue={
+                          editingMovie ? editingMovie.Genero.id : ""
+                        }
+                        value={generoEdit}
+                        onChange={(event) => setGeneroEdit(event.target.value)}
+                      >
+                        <option selected>Choose...</option>
+                        {generos.map((genero) => (
+                          <option key={genero.id} value={genero.id}>
+                            {genero.descricao}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                   <div className="modal-footer">
-                    <button type="submit" className="btn btn-primary">
+                    <button
+                      type="submit"
+                      className="btn btn-primary"
+                      data-bs-dismiss="modal"
+                      onClick={() => window.location.reload()}
+                    >
                       Save Changes
                     </button>
                   </div>
@@ -316,8 +412,6 @@ function Admin() {
   );
 }
 
-function genero(descricao) {
-  return <option value="">{descricao}</option>;
-}
+/* function to list the movies */
 
 export default Admin;
