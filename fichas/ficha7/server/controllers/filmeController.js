@@ -19,6 +19,7 @@ module.exports = {
           model: Genero,
         },
       ],
+      order: [["id", "ASC"]],
     });
 
     return res.status(200).send(filme);

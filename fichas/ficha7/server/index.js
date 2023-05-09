@@ -8,7 +8,6 @@ app.use(cors());
 
 sequelize.authenticate().then(() => {
   console.log("Conexão com o banco de dados realizada com sucesso!");
-
   sequelize.sync({ force: false });
 });
 
