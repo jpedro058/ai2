@@ -89,6 +89,9 @@ export function List() {
                 <Card.Title>
                   <h2>{filme.titulo}</h2>
                 </Card.Title>
+                <Card.Subtitle>
+                  <p>{filme.Genero.descricao}</p>
+                </Card.Subtitle>
                 <Card.Text>
                   <p> {filme.descricao}</p>
                 </Card.Text>
